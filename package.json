@@ -1,0 +1,14 @@
+{
+  "name": "cheonsaengyakbun",
+  "version": "1.0.0",
+  "description": "AI 기반 약물-음식 상호작용 분석 서비스",
+  "type": "module",
+  "scripts": {
+    "dev": "npm run dev --prefix client",
+    "build": "npm run build --prefix client"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.11.3",
+    "multiparty": "^4.2.3"
+  }
+}

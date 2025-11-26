@@ -3,7 +3,12 @@
     "allow": [
       "Bash(npm install)",
       "Bash(git init:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nInitial commit: 천생약분 AI 기반 약물-음식 상호작용 분석 서비스\n\n주요 기능:\n- 30가지 노인 다빈도 질환 선택 (카테고리별)\n- 약 봉투 사진 AI 분석 (Gemini 2.0 Flash)\n- 약 이름 직접 입력 옵션\n- 건강식품/영양제 체크리스트 (15개 항목)\n- 음성 결과 읽어주기 (TTS)\n- 챗봇 대화형 인터페이스 (음성 입력 지원)\n- 모바일 반응형 디자인\n- 에러 처리 강화\n\n기술 스택:\n- Frontend: React + Vite\n- Backend: Node.js + Express\n- AI: Google Gemini 2.0 Flash\n- Deployment: Vercel\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git remote add:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nVercel 배포 설정: Serverless Functions로 변환\n\n변경사항:\n- /api 디렉토리에 Serverless Functions 생성\n  - analyze.js: 약물 분석 API\n  - chat.js: 챗봇 API\n- vercel.json 간소화\n- 프론트엔드 API URL을 상대 경로로 변경\n- 루트 package.json 추가\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
     ],
     "deny": [],
     "ask": []

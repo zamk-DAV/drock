@@ -48,7 +48,8 @@ function App() {
     formData.append('otherInfo', otherInfo);
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      // Vercel 배포 시 상대 경로 사용
+      const API_URL = import.meta.env.VITE_API_URL || '';
       const response = await fetch(`${API_URL}/api/analyze`, {
         method: 'POST',
         body: formData,
