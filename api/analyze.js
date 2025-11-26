@@ -112,7 +112,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: '이미지 파일 또는 약 이름을 입력해주세요.' });
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
     const prompt = createPrompt(diseases, supplementInfo, otherInfo, manualMedicines);
 
     const safetySettings = [
@@ -154,7 +154,8 @@ export default async function handler(req, res) {
     console.error('오류 상세:', error.message, error.stack);
     res.status(500).json({
       error: 'AI 분석 중 서버에서 오류가 발생했습니다.',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: error.message,
+      stack: error.stack
     });
   }
 }

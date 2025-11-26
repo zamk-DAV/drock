@@ -25,7 +25,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: '메시지가 필요합니다.' });
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const chatPrompt = `
 당신은 약물, 음식, 영양제 간의 상호작용에 대해 깊은 지식을 가진 'AI 약사'입니다.

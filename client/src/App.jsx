@@ -59,7 +59,17 @@ function App() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || `서버 오류: ${response.status}`);
+        console.error('서버 에러 상세:', errorData);
+
+        let errorMsg = errorData.error || `서버 오류: ${response.status}`;
+        if (errorData.details) {
+          errorMsg += `\n\n상세 정보: ${errorData.details}`;
+        }
+        if (errorData.stack) {
+          console.error('스택 트레이스:', errorData.stack);
+        }
+
+        throw new Error(errorMsg);
       }
 
       const data = await response.json();
