@@ -8,7 +8,8 @@
       "Bash(git remote add:*)",
       "Bash(git branch:*)",
       "Bash(git push:*)",
-      "Bash(git commit -m \"$(cat <<''EOF''\nVercel 배포 설정: Serverless Functions로 변환\n\n변경사항:\n- /api 디렉토리에 Serverless Functions 생성\n  - analyze.js: 약물 분석 API\n  - chat.js: 챗봇 API\n- vercel.json 간소화\n- 프론트엔드 API URL을 상대 경로로 변경\n- 루트 package.json 추가\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+      "Bash(git commit -m \"$(cat <<''EOF''\nVercel 배포 설정: Serverless Functions로 변환\n\n변경사항:\n- /api 디렉토리에 Serverless Functions 생성\n  - analyze.js: 약물 분석 API\n  - chat.js: 챗봇 API\n- vercel.json 간소화\n- 프론트엔드 API URL을 상대 경로로 변경\n- 루트 package.json 추가\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git commit -m \"$(cat <<''EOF''\nUI 전면 개선: 깔끔한 흰색 배경 + 모바일/데스크톱 분리\n\n변경사항:\n- 전체 배경을 흰색으로 변경\n- 헤더에 그라데이션 적용 (보라색 계열)\n- 질병 선택 UI 개선:\n  * 모바일: 아코디언 형식 (접기/펼치기)\n  * 데스크톱: 모든 카테고리 펼쳐진 상태\n- 모든 버튼에 그라데이션 및 그림자 효과\n- 카드 형식의 깔끔한 레이아웃\n- 색상 통일: 보라색 계열 (#667eea, #764ba2)\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
     ],
     "deny": [],
     "ask": []
