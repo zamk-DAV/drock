@@ -112,7 +112,12 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: '이미지 파일 또는 약 이름을 입력해주세요.' });
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-2.5-flash',
+      generationConfig: {
+        maxOutputTokens: 8192, // 출력 토큰 제한
+      }
+    });
     const prompt = createPrompt(diseases, supplementInfo, otherInfo, manualMedicines);
 
     const safetySettings = [
@@ -122,32 +127,61 @@ export default async function handler(req, res) {
       { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
     ];
 
-    let result;
-    if (imageFiles.length > 0) {
-      // 이미지가 있으면 이미지와 함께 분석
-      const fs = await import('fs');
-      const contentParts = [prompt];
+    // 재시도 로직 (최대 3번)
+    const MAX_RETRIES = 3;
+    let lastError;
 
-      // 다중 이미지 처리
-      for (const imageFile of imageFiles) {
-        const imageBuffer = fs.readFileSync(imageFile.path);
-        const imagePart = {
-          inlineData: {
-            data: imageBuffer.toString('base64'),
-            mimeType: imageFile.headers['content-type'] || 'image/jpeg',
-          },
-        };
-        contentParts.push(imagePart);
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        console.log(`AI 분석 시도 ${attempt}/${MAX_RETRIES}...`);
+
+        let result;
+        if (imageFiles.length > 0) {
+          // 이미지가 있으면 이미지와 함께 분석
+          const fs = await import('fs');
+          const contentParts = [prompt];
+
+          // 다중 이미지 처리
+          for (const imageFile of imageFiles) {
+            const imageBuffer = fs.readFileSync(imageFile.path);
+            const imagePart = {
+              inlineData: {
+                data: imageBuffer.toString('base64'),
+                mimeType: imageFile.headers['content-type'] || 'image/jpeg',
+              },
+            };
+            contentParts.push(imagePart);
+          }
+
+          result = await model.generateContent(contentParts, { safetySettings });
+        } else {
+          // 이미지 없이 텍스트만 분석
+          result = await model.generateContent(prompt, { safetySettings });
+        }
+
+        const analysis = result.response.text();
+        console.log(`AI 분석 성공 (시도 ${attempt}/${MAX_RETRIES})`);
+        return res.status(200).json({ analysis });
+
+      } catch (error) {
+        lastError = error;
+        console.error(`AI 분석 실패 (시도 ${attempt}/${MAX_RETRIES}):`, error.message);
+
+        // 429 (할당량 초과) 또는 503 (서비스 일시 중단) 에러인 경우 재시도
+        if (attempt < MAX_RETRIES && (error.status === 429 || error.status === 503 || error.message.includes('quota'))) {
+          const waitTime = Math.min(1000 * Math.pow(2, attempt - 1), 5000); // 지수 백오프 (최대 5초)
+          console.log(`${waitTime}ms 대기 후 재시도...`);
+          await new Promise(resolve => setTimeout(resolve, waitTime));
+          continue;
+        }
+
+        // 재시도할 수 없는 에러이거나 마지막 시도인 경우 중단
+        break;
       }
-
-      result = await model.generateContent(contentParts, { safetySettings });
-    } else {
-      // 이미지 없이 텍스트만 분석
-      result = await model.generateContent(prompt, { safetySettings });
     }
 
-    const analysis = result.response.text();
-    res.status(200).json({ analysis });
+    // 모든 재시도 실패
+    throw lastError;
 
   } catch (error) {
     console.error('AI 분석 중 오류 발생:', error);

@@ -25,7 +25,12 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: '메시지가 필요합니다.' });
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-2.5-flash',
+      generationConfig: {
+        maxOutputTokens: 2048, // 챗봇은 짧은 응답
+      }
+    });
 
     const chatPrompt = `
 당신은 약물, 음식, 영양제 간의 상호작용에 대해 깊은 지식을 가진 'AI 약사'입니다.
@@ -41,10 +46,39 @@ export default async function handler(req, res) {
 5. 마지막에 "정확한 답변은 의사/약사와 상담하세요" 꼭 포함
 `;
 
-    const result = await model.generateContent(chatPrompt);
-    const response = result.response.text();
+    // 재시도 로직 (최대 3번)
+    const MAX_RETRIES = 3;
+    let lastError;
 
-    res.status(200).json({ response });
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        console.log(`챗봇 응답 생성 시도 ${attempt}/${MAX_RETRIES}...`);
+
+        const result = await model.generateContent(chatPrompt);
+        const response = result.response.text();
+
+        console.log(`챗봇 응답 생성 성공 (시도 ${attempt}/${MAX_RETRIES})`);
+        return res.status(200).json({ response });
+
+      } catch (error) {
+        lastError = error;
+        console.error(`챗봇 응답 생성 실패 (시도 ${attempt}/${MAX_RETRIES}):`, error.message);
+
+        // 429 (할당량 초과) 또는 503 (서비스 일시 중단) 에러인 경우 재시도
+        if (attempt < MAX_RETRIES && (error.status === 429 || error.status === 503 || error.message.includes('quota'))) {
+          const waitTime = Math.min(1000 * Math.pow(2, attempt - 1), 5000); // 지수 백오프 (최대 5초)
+          console.log(`${waitTime}ms 대기 후 재시도...`);
+          await new Promise(resolve => setTimeout(resolve, waitTime));
+          continue;
+        }
+
+        // 재시도할 수 없는 에러이거나 마지막 시도인 경우 중단
+        break;
+      }
+    }
+
+    // 모든 재시도 실패
+    throw lastError;
 
   } catch (error) {
     console.error('챗봇 처리 중 오류:', error);
