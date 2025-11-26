@@ -80,6 +80,12 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // 환경변수 확인
+  if (!process.env.GEMINI_API_KEY) {
+    console.error('GEMINI_API_KEY 환경변수가 설정되지 않았습니다.');
+    return res.status(500).json({ error: 'API 키가 설정되지 않았습니다. 관리자에게 문의하세요.' });
+  }
+
   try {
     // multiparty로 form data 파싱
     const form = new multiparty.Form();
