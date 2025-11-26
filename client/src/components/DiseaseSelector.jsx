@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
 const diseaseCategories = {
   "혈관/심장": [
@@ -12,40 +12,6 @@ const diseaseCategories = {
 };
 
 const DiseaseSelector = ({ selectedDiseases, setSelectedDiseases }) => {
-  const [expandedCategories, setExpandedCategories] = useState({});
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // 데스크톱에서는 모두 펼침
-  useEffect(() => {
-    if (!isMobile) {
-      const allExpanded = {};
-      Object.keys(diseaseCategories).forEach(category => {
-        allExpanded[category] = true;
-      });
-      setExpandedCategories(allExpanded);
-    } else {
-      setExpandedCategories({});
-    }
-  }, [isMobile]);
-
-  const toggleCategory = (category) => {
-    if (isMobile) {
-      setExpandedCategories(prev => ({
-        ...prev,
-        [category]: !prev[category]
-      }));
-    }
-  };
-
   const handleCheckboxChange = (disease) => {
     setSelectedDiseases(prev =>
       prev.includes(disease)
@@ -58,18 +24,8 @@ const DiseaseSelector = ({ selectedDiseases, setSelectedDiseases }) => {
     <div className="disease-selector">
       <h2>1. 현재 가지고 있는 질병을 선택해주세요</h2>
       {Object.entries(diseaseCategories).map(([category, diseases]) => (
-        <fieldset
-          key={category}
-          className={`category-fieldset ${expandedCategories[category] ? 'expanded' : ''}`}
-        >
-          <legend onClick={() => toggleCategory(category)}>
-            {category}
-            {isMobile && (
-              <span style={{ fontSize: '0.8rem', color: '#718096' }}>
-                {expandedCategories[category] ? ' ▲' : ' ▼'}
-              </span>
-            )}
-          </legend>
+        <fieldset key={category} className="category-fieldset">
+          <legend>{category}</legend>
           <div className="disease-list">
             {diseases.map(disease => (
               <div key={disease} className="checkbox-wrapper">
