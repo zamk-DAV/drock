@@ -112,7 +112,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: '이미지 파일 또는 약 이름을 입력해주세요.' });
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
     const prompt = createPrompt(diseases, supplementInfo, otherInfo, manualMedicines);
 
     const safetySettings = [
