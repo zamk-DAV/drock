@@ -10,12 +10,14 @@ const ChatMode = ({ onClose }) => {
   const [input, setInput] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [voiceSupported, setVoiceSupported] = useState(false);
   const messagesEndRef = useRef(null);
   const recognitionRef = useRef(null);
 
   useEffect(() => {
     // 음성 인식 설정
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      setVoiceSupported(true);
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       recognitionRef.current = new SpeechRecognition();
       recognitionRef.current.lang = 'ko-KR';
@@ -34,6 +36,8 @@ const ChatMode = ({ onClose }) => {
       recognitionRef.current.onend = () => {
         setIsListening(false);
       };
+    } else {
+      setVoiceSupported(false);
     }
 
     return () => {
@@ -141,7 +145,7 @@ const ChatMode = ({ onClose }) => {
             disabled={isLoading}
           />
           <div className="chat-buttons">
-            {recognitionRef.current && (
+            {voiceSupported && (
               <button
                 type="button"
                 className={`voice-input-button ${isListening ? 'listening' : ''}`}

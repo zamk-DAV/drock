@@ -1,19 +1,26 @@
 import React, { useState, useRef } from 'react';
 
 const ImageUploader = ({ onFileSelect, manualMedicines, setManualMedicines }) => {
-  const [preview, setPreview] = useState(null);
-  const [inputMode, setInputMode] = useState('image'); // 'image' or 'manual'
+  const [previews, setPreviews] = useState([]);
   const fileInputRef = useRef(null);
 
   const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      onFileSelect(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result);
-      };
-      reader.readAsDataURL(file);
+    const files = Array.from(event.target.files);
+    if (files.length > 0) {
+      onFileSelect(files); // 다중 파일 전달
+
+      // 미리보기 생성
+      const newPreviews = [];
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          newPreviews.push(reader.result);
+          if (newPreviews.length === files.length) {
+            setPreviews(newPreviews);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
     }
   };
 
@@ -25,57 +32,42 @@ const ImageUploader = ({ onFileSelect, manualMedicines, setManualMedicines }) =>
     <div className="image-uploader">
       <h2>2. 복용 중인 약 정보를 입력해주세요.</h2>
 
-      <div className="input-mode-selector">
-        <button
-          type="button"
-          className={`mode-button ${inputMode === 'image' ? 'active' : ''}`}
-          onClick={() => setInputMode('image')}
-        >
-          📷 사진으로 입력
-        </button>
-        <button
-          type="button"
-          className={`mode-button ${inputMode === 'manual' ? 'active' : ''}`}
-          onClick={() => setInputMode('manual')}
-        >
-          ✏️ 직접 입력
-        </button>
-      </div>
+      <button type="button" onClick={handleButtonClick} className="upload-button">
+        📷 사진 선택하기 (여러 장 가능)
+      </button>
+      <input
+        type="file"
+        accept="image/*"
+        capture="environment"
+        multiple
+        onChange={handleFileChange}
+        ref={fileInputRef}
+        style={{ display: 'none' }}
+      />
 
-      {inputMode === 'image' ? (
-        <>
-          <button type="button" onClick={handleButtonClick} className="upload-button">
-            사진 선택하기 (촬영 또는 갤러리)
-          </button>
-          <input
-            type="file"
-            accept="image/*"
-            capture="environment"
-            onChange={handleFileChange}
-            ref={fileInputRef}
-            style={{ display: 'none' }}
-          />
-          {preview && (
-            <div className="image-preview">
-              <p>선택된 사진:</p>
-              <img src={preview} alt="선택한 약 봉투 사진" style={{ maxWidth: '300px', maxHeight: '300px' }} />
-            </div>
-          )}
-        </>
-      ) : (
-        <div className="manual-input">
-          <p style={{ color: '#666', marginBottom: '0.5rem' }}>
-            복용 중인 약 이름을 쉼표(,)로 구분하여 입력해주세요.
-          </p>
-          <textarea
-            value={manualMedicines}
-            onChange={(e) => setManualMedicines(e.target.value)}
-            placeholder="예: 아스피린, 메트포르민, 리피토 등"
-            rows="4"
-            className="info-textarea"
-          />
+      {previews.length > 0 && (
+        <div className="image-preview">
+          <p>선택된 사진 ({previews.length}장):</p>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
+            {previews.map((preview, idx) => (
+              <img key={idx} src={preview} alt={`선택한 약 봉투 사진 ${idx + 1}`} style={{ maxWidth: '150px', maxHeight: '150px', borderRadius: '8px', border: '2px solid #ddd' }} />
+            ))}
+          </div>
         </div>
       )}
+
+      <div className="manual-input" style={{ marginTop: '1.5rem' }}>
+        <p style={{ color: '#666', marginBottom: '0.5rem' }}>
+          ✏️ 또는 약 이름을 직접 입력해주세요 (쉼표로 구분)
+        </p>
+        <textarea
+          value={manualMedicines}
+          onChange={(e) => setManualMedicines(e.target.value)}
+          placeholder="예: 아스피린, 메트포르민, 리피토 등"
+          rows="4"
+          className="info-textarea"
+        />
+      </div>
     </div>
   );
 };

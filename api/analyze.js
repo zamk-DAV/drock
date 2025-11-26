@@ -99,10 +99,10 @@ export default async function handler(req, res) {
     const manualMedicines = fields.manualMedicines?.[0] || '';
     const supplementInfo = fields.supplementInfo?.[0] || '';
     const otherInfo = fields.otherInfo?.[0] || '';
-    const imageFile = files.image?.[0];
+    const imageFiles = files.images || [];
 
     // 이미지 또는 약 이름 직접 입력 중 하나는 필수
-    if (!imageFile && !manualMedicines) {
+    if (imageFiles.length === 0 && !manualMedicines) {
       return res.status(400).json({ error: '이미지 파일 또는 약 이름을 입력해주세요.' });
     }
 
@@ -117,17 +117,24 @@ export default async function handler(req, res) {
     ];
 
     let result;
-    if (imageFile) {
+    if (imageFiles.length > 0) {
       // 이미지가 있으면 이미지와 함께 분석
       const fs = await import('fs');
-      const imageBuffer = fs.readFileSync(imageFile.path);
-      const imagePart = {
-        inlineData: {
-          data: imageBuffer.toString('base64'),
-          mimeType: imageFile.headers['content-type'],
-        },
-      };
-      result = await model.generateContent([prompt, imagePart], { safetySettings });
+      const contentParts = [prompt];
+
+      // 다중 이미지 처리
+      for (const imageFile of imageFiles) {
+        const imageBuffer = fs.readFileSync(imageFile.path);
+        const imagePart = {
+          inlineData: {
+            data: imageBuffer.toString('base64'),
+            mimeType: imageFile.headers['content-type'] || 'image/jpeg',
+          },
+        };
+        contentParts.push(imagePart);
+      }
+
+      result = await model.generateContent(contentParts, { safetySettings });
     } else {
       // 이미지 없이 텍스트만 분석
       result = await model.generateContent(prompt, { safetySettings });
@@ -138,6 +145,10 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('AI 분석 중 오류 발생:', error);
-    res.status(500).json({ error: 'AI 분석 중 서버에서 오류가 발생했습니다.' });
+    console.error('오류 상세:', error.message, error.stack);
+    res.status(500).json({
+      error: 'AI 분석 중 서버에서 오류가 발생했습니다.',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 }

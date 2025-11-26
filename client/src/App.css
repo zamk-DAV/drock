@@ -275,49 +275,6 @@ h2 {
   }
 }
 
-.input-mode-selector {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  margin-bottom: 1.5rem;
-}
-
-.mode-button {
-  flex: 1;
-  max-width: 200px;
-  padding: 0.8rem 1.2rem;
-  font-size: 0.95rem;
-  border: 2px solid #667eea;
-  background-color: white;
-  color: #667eea;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-weight: 500;
-}
-
-@media (min-width: 768px) {
-  .mode-button {
-    font-size: 0.92rem;
-    padding: 0.7rem 1rem;
-  }
-}
-
-.mode-button:hover {
-  background-color: #f7fafc;
-  border-color: #764ba2;
-}
-
-.mode-button.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border-color: transparent;
-}
-
-.mode-button:active {
-  transform: scale(0.98);
-}
-
 .manual-input {
   margin-top: 1rem;
 }
@@ -385,7 +342,7 @@ h2 {
   display: grid;
   grid-template-columns: 1fr;
   gap: 0.8rem;
-  background-color: #f8f9fa;
+  background-color: #ffffff;
   padding: 1rem;
   border-radius: 8px;
   border: 1px solid #e0e0e0;
@@ -408,6 +365,13 @@ h2 {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  padding: 0.5rem;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+
+.supplement-grid .checkbox-wrapper:hover {
+  background-color: #f7fafc;
 }
 
 .supplement-grid input[type="checkbox"] {
@@ -415,6 +379,30 @@ h2 {
   height: 1.5rem;
   cursor: pointer;
   flex-shrink: 0;
+  accent-color: #667eea;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 2px solid #d1d5db;
+  border-radius: 4px;
+  background-color: white;
+  position: relative;
+  transition: all 0.2s;
+}
+
+.supplement-grid input[type="checkbox"]:checked {
+  background-color: #667eea;
+  border-color: #667eea;
+}
+
+.supplement-grid input[type="checkbox"]:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
 }
 
 @media (min-width: 768px) {
@@ -422,12 +410,17 @@ h2 {
     width: 1.3rem;
     height: 1.3rem;
   }
+
+  .supplement-grid input[type="checkbox"]:checked::after {
+    font-size: 0.9rem;
+  }
 }
 
 .supplement-grid label {
   font-size: 1.05rem;
   cursor: pointer;
   line-height: 1.5;
+  color: #333333;
 }
 
 @media (min-width: 768px) {
@@ -446,6 +439,8 @@ h2 {
   border-radius: 8px;
   resize: vertical;
   min-height: 100px;
+  background-color: #ffffff;
+  color: #000000;
 }
 
 @media (min-width: 768px) {

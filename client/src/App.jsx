@@ -8,7 +8,7 @@ import ChatMode from './components/ChatMode';
 
 function App() {
   const [selectedDiseases, setSelectedDiseases] = useState([]);
-  const [imageFile, setImageFile] = useState(null);
+  const [imageFiles, setImageFiles] = useState([]);
   const [manualMedicines, setManualMedicines] = useState('');
   const [selectedSupplements, setSelectedSupplements] = useState([]);
   const [supplementInfo, setSupplementInfo] = useState('');
@@ -20,7 +20,7 @@ function App() {
 
   const handleAnalyze = async () => {
     // 사진 또는 약 이름 직접 입력 중 하나는 필수
-    if (!imageFile && !manualMedicines.trim()) {
+    if (imageFiles.length === 0 && !manualMedicines.trim()) {
       alert('약 봉투 사진을 업로드하거나 약 이름을 직접 입력해주세요.');
       return;
     }
@@ -39,8 +39,10 @@ function App() {
     }
 
     const formData = new FormData();
-    if (imageFile) {
-      formData.append('image', imageFile);
+    if (imageFiles.length > 0) {
+      imageFiles.forEach(file => {
+        formData.append('images', file);
+      });
     }
     formData.append('manualMedicines', manualMedicines);
     formData.append('diseases', selectedDiseases.join(', '));
@@ -114,7 +116,7 @@ function App() {
               setSelectedDiseases={setSelectedDiseases}
             />
             <ImageUploader
-              onFileSelect={setImageFile}
+              onFileSelect={setImageFiles}
               manualMedicines={manualMedicines}
               setManualMedicines={setManualMedicines}
             />
